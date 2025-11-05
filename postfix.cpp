@@ -1,14 +1,13 @@
 #include <iostream>
 #include <string>
-#include<stack>
-#include<cc>
+#include <cctype>
 #include "linkedstack.h"
 #include "Node.h"
 
 using namespace std;
 
 bool isOperator(char c){
-    return(c == "+" || c == "-" || c == "*" || c == "/");
+    return (c == '+' || c == '-' || c == '*' || c == '/');
 
 }
 
@@ -17,12 +16,14 @@ int evaluatePostfix(string postfix){
     for(char c : postfix) {
         if(isdigit(c)) {
             operandStack.push(c - '0');
-            
+
         }
-        else if(isOperator(C))
+        else if(isOperator(c))
         {
-            int operand1 = operandStack.pop();
-            int operand2 = operandStack.pop();
+            int operand2 = operandStack.peek();
+            operandStack.pop();
+            int operand1 = operandStack.peek();
+            operandStack.pop();
             int result;
             switch (c)
             {
@@ -39,9 +40,10 @@ int evaluatePostfix(string postfix){
             }
             operandStack.push(result);
         }
-
-        return operandStack.pop();
     }
+    int finalResult = operandStack.peek();
+    operandStack.pop();
+    return finalResult;
 }
 
 string infixTopostfix(string infix)
@@ -55,14 +57,17 @@ string infixTopostfix(string infix)
             postfix += c;
 
         }
-        else if(isOperator(C))
+        else if(isOperator(c))
         {
             while(!operatorStack.isEmpty() && operatorStack.peek() != '(' &&
             ((c == '+' || c == '-') && (operatorStack.peek() == '*' || operatorStack.peek() == '/')))
-            postfix += operatorStack.pop();
+            {
+                char top = operatorStack.peek();
+                operatorStack.pop();
+                postfix += top;
+            }
 
-        
-            operatorStack.push(C);
+            operatorStack.push(c);
         }
         else if (c == '(')
         {
@@ -72,7 +77,9 @@ string infixTopostfix(string infix)
         {
             while (!operatorStack.isEmpty() && operatorStack.peek() != '(')
             {
-                postfix += operatorStack.pop();
+                char op = operatorStack.peek();
+                operatorStack.pop();
+                postfix += op;
             }
             if(!operatorStack.isEmpty() && operatorStack.peek() == '(')
             {
@@ -83,7 +90,9 @@ string infixTopostfix(string infix)
     }
     while(!operatorStack.isEmpty())
     {
-        postfix += operatorStack.pop();
+        char op = operatorStack.peek();
+        operatorStack.pop();
+        postfix += op;
     }
     return postfix;
 }
